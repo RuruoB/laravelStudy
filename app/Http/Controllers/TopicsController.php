@@ -7,7 +7,7 @@ use App\Models\Category;
 use App\Models\Topic;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 use App\Http\Requests\TopicRequest;
 
 class TopicsController extends Controller
@@ -76,7 +76,12 @@ class TopicsController extends Controller
 			report($e);
 			return redirect()->route('topics.show', $topic->id)->with('danger', '敏感操作!');
 		}
-		$topic->delete();
+		try {
+			$topic->delete();
+		} catch (\Exception $e) {
+			report($e);
+			return redirect()->route('topics.show', $topic->id)->with('danger', '删除失败!');
+		}
 
 		return redirect()->route('topics.index')->with('success', '删除成功!.');
 	}
