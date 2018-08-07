@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Handlers\ImageUploadHandler;
 use App\Models\Category;
 use App\Models\Topic;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\TopicRequest;
@@ -44,13 +45,24 @@ class TopicsController extends Controller
 
 	public function edit(Topic $topic)
 	{
-		$this->authorize('update', $topic);
-		return view('topics.create_and_edit', compact('topic'));
+		try {
+			$this->authorize('update', $topic);
+		} catch (AuthorizationException $e) {
+			report($e);
+			return redirect()->route('topics.show', $topic->id)->with('danger', '敏感操作!');
+		};
+		$categories = Category::all();
+		return view('topics.create_and_edit', compact('topic', 'categories'));
 	}
 
 	public function update(TopicRequest $request, Topic $topic)
 	{
-		$this->authorize('update', $topic);
+		try {
+			$this->authorize('update', $topic);
+		} catch (AuthorizationException $e) {
+			report($e);
+			return redirect()->route('topics.show', $topic->id)->with('danger', '敏感操作!');
+		};
 		$topic->update($request->all());
 
 		return redirect()->route('topics.show', $topic->id)->with('success', '更新成功!');
@@ -58,7 +70,12 @@ class TopicsController extends Controller
 
 	public function destroy(Topic $topic)
 	{
-		$this->authorize('destroy', $topic);
+		try {
+			$this->authorize('destroy', $topic);
+		} catch (AuthorizationException $e) {
+			report($e);
+			return redirect()->route('topics.show', $topic->id)->with('danger', '敏感操作!');
+		}
 		$topic->delete();
 
 		return redirect()->route('topics.index')->with('success', '删除成功!.');

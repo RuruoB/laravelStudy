@@ -36,9 +36,10 @@
 
                                     <div class="form-group">
                                         <select class="form-control" name="category_id" required>
-                                            <option value="" hidden disabled selected>请选择分类</option>
+                                            <option value="" hidden disabled {{ $topic->id ? '' : 'selected' }}>请选择分类
+                                            </option>
                                             @foreach ($categories as $value)
-                                                <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                <option value="{{ $value->id }}" {{ $topic->category_id == $value->id ? 'selected' : '' }}>{{ $value->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -73,12 +74,12 @@
     <script src="{{ asset('js/simditor.js') }}" type="text/javascript"></script>
 
     <script>
-        $(document).ready(function(){
+        $(document).ready(function () {
             var editor = new Simditor({
                 textarea: $('#editor'),
                 upload: {
                     url: '{{ route('topics.upload_image') }}',
-                    params: { _token: '{{ csrf_token() }}' },
+                    params: {_token: '{{ csrf_token() }}'},
                     fileKey: 'upload_file',
                     connectionCount: 3,
                     leaveConfirm: '文件上传中，关闭此页面将取消上传。'
